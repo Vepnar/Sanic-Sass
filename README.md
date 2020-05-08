@@ -6,6 +6,19 @@
 - On the fly compiling to speed up development with our middleware.
 - Compile your entire application at once for at production
 
+# Installation
+
+## With pip
+`pip install sanic-sass`
+
+## With setuptools & git
+Clone the newest version from github.<br>
+`git clone https://github.com/Vepnar/Sanic-Sass.git`<br>
+Cd into the new directory.<br>
+`cd Sanic-Sass`<br>
+Run setuptools.<br>
+`setup.py install --user`
+
 # Examples
 
 ### Precompiled
