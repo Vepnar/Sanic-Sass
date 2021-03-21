@@ -28,7 +28,7 @@ from sanic_sass import SassManifest
 
 webserver = Sanic(name='precompiled')
 
-manifest = SassManifest('/static/css', './css', './hidden', css_type='sass')
+manifest = SassManifest('/static/css', './static/sass', './compiled', css_type='sass')
 manifest.compile_webapp(webserver, register_static=True)
 
 webserver.run(host='0.0.0.0', port=8000)
@@ -41,7 +41,7 @@ from sanic_sass import SassManifest
 
 webserver = Sanic(name='middelware')
 
-manifest = SassManifest('/static/css', './css', './hidden', css_type='scss')
+manifest = SassManifest('/static/css', './static/scss', './compiled', css_type='scss')
 manifest.middelware(webserver)
 
 webserver.run(host='0.0.0.0', port=8000, debug=True)
