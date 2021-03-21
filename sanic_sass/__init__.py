@@ -10,12 +10,12 @@ from sass import compile
 
 from sanic import response, exceptions
 
-__version__ = '0.1.0'
-__author__ = 'Arjan de Haan'
-__maintainer__ = 'Arjan de Haan'
-__email__ = 'vepnardev@gmail.com'
-__license__ = 'MIT'
-__credits__ = ['Arjan de Haan']
+__version__ = "0.1.0"
+__author__ = "Arjan de Haan"
+__maintainer__ = "Arjan de Haan"
+__email__ = "vepnardev@gmail.com"
+__license__ = "MIT"
+__credits__ = ["Arjan de Haan"]
 
 
 def _to_realpath_list(items, create_dirs=False):
@@ -34,7 +34,7 @@ def _to_realpath_list(items, create_dirs=False):
     return items
 
 
-class SassManifest():
+class SassManifest:
     """Compile all Sass/SCSS files to CSS.
 
     Args:
@@ -58,7 +58,9 @@ class SassManifest():
         TypeError: web_css, server_css & server_sass are not equal length.
     """
 
-    def __init__(self, web_css, server_css, server_sass, style='nested', css_type='sass'):
+    def __init__(
+        self, web_css, server_css, server_sass, style="nested", css_type="sass"
+    ):
         self.web_css = _to_realpath_list(web_css)
         self.server_css = _to_realpath_list(server_css)
         self.server_sass = _to_realpath_list(server_sass, create_dirs=True)
@@ -66,13 +68,13 @@ class SassManifest():
         self.css_type = css_type
 
         if not len(self.web_css) == len(self.server_css) == len(self.server_sass):
-            raise TypeError('All lists should be equal length.')
+            raise TypeError("All lists should be equal length.")
 
     def _get_sass(self, web_path):
         # Only allow .css files
         prefix, suffix = os.path.splitext(web_path)
         prefix = os.path.basename(prefix)
-        if suffix != '.css':
+        if suffix != ".css":
             return None
 
         # Remove prefix and suffix
@@ -81,8 +83,8 @@ class SassManifest():
         # Loop though added paths
         for index, web_css_path in enumerate(self.web_css):
             if web_css_path in web_dir:
-                new_path = web_dir[len(web_css_path):]
-                return f'{self.server_sass[index]}{new_path}{os.path.sep}{prefix}.{self.css_type}'
+                new_path = web_dir[len(web_css_path) :]
+                return f"{self.server_sass[index]}{new_path}{os.path.sep}{prefix}.{self.css_type}"
         return None
 
     def _web_compile(self, web_path):
@@ -94,35 +96,36 @@ class SassManifest():
             return None
 
         return compile(
-            filename=sass_path,
-            output_style=self.style,
-            include_paths=self.server_sass
+            filename=sass_path, output_style=self.style, include_paths=self.server_sass
         )
 
     def _handle_request(self, request, req_path):
         """Listen to get requests"""
         css = self._web_compile(request.path)
         if css is None:
-            raise exceptions.NotFound(f'{req_path} not found.', False)
+            raise exceptions.NotFound(f"{req_path} not found.", False)
 
-        return response.text(css, content_type='text/css ')
+        return response.text(css, content_type="text/css ")
 
     def _compile_dirs(self):
         """Compile all found Sass/SCSS files to CSS files"""
         for index, server_sass_dir in enumerate(self.server_sass):
-            sass_files = [y for x in os.walk(server_sass_dir) for y in glob(
-                os.path.join(x[0], f'*.{self.css_type}'))]
+            sass_files = [
+                y
+                for x in os.walk(server_sass_dir)
+                for y in glob(os.path.join(x[0], f"*.{self.css_type}"))
+            ]
             for sass_file in sass_files:
                 filename = os.path.splitext(os.path.basename(sass_file))[0]
-                new_path = os.path.dirname(sass_file)[len(server_sass_dir):]
-                new_path = f'{self.server_css[index]}{new_path}'
+                new_path = os.path.dirname(sass_file)[len(server_sass_dir) :]
+                new_path = f"{self.server_css[index]}{new_path}"
                 if not os.path.exists(new_path):
                     os.makedirs(new_path)
-                with open(f'{new_path}{os.path.sep}{filename}.css', 'w+') as file:
+                with open(f"{new_path}{os.path.sep}{filename}.css", "w+") as file:
                     css = compile(
                         filename=sass_file,
                         output_style=self.style,
-                        include_paths=self.server_sass
+                        include_paths=self.server_sass,
                     )
                     file.write(css)
 
@@ -155,5 +158,6 @@ class SassManifest():
                 type: Sanic
         """
         for web_path in self.web_css:
-            app.add_route(self._handle_request,
-                          f'{web_path}/<req_path:path>', methods=['GET'])
+            app.add_route(
+                self._handle_request, f"{web_path}/<req_path:path>", methods=["GET"]
+            )
